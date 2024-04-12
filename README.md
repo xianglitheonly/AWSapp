@@ -1,33 +1,31 @@
 ## Project Description
 
-using AWS-native tools such as CloudFormation for infrastructure provisioning and AWS CodePipeline, AWS CodeBuild, and AWS CodeDeploy for automating the deployment process. 
+Using AWS-native tools such as CloudFormation for infrastructure provisioning and AWS CodePipeline, AWS CodeBuild, and AWS CodeDeploy for automating the deployment process. 
 
 ## CloudFormation
 
 * Launch Configuration and Auto Scaling Group:
 
-Define a Launch Configuration specifying the EC2 instance details.
-Define an Auto Scaling Group referencing the Launch Configuration, specifying minimum, maximum, and desired capacity along with scaling policies.
+  Define a Launch Configuration specifying the EC2 instance details.
+  Define an Auto Scaling Group referencing the Launch Configuration, specifying minimum, maximum, and desired capacity along with scaling policies.
 
 * Application Load Balancer (ALB):
 
-Define an Application Load Balancer resource specifying listeners, target groups, and routing rules.
-Register the EC2 instances with the ALB's target group.
+  Define an Application Load Balancer resource specifying listeners, target groups, and routing rules.
+  Register the EC2 instances with the ALB's target group.
 
-* CloudWatch Log Group and SNS:
+* CloudWatch Log Group:
 
-Define a CloudWatch Log Group for your EC2 instances' logs.
-Set up an SNS topic for receiving notifications/alerts.
+  Define a CloudWatch Log Group for Rout53 hosted zone access log.
 
 * CloudWatch Alarm:
 
-Create CloudWatch Alarms to monitor specific metrics (CPU utilization, network traffic, etc.) of your EC2 instances or ALB.
-Set up actions for these alarms, such as triggering SNS notifications or Auto Scaling policies.
+  Create a CloudWatch Alarm to monitor CPU utilization of ASG.
+  Set up action for the alarms to trigger SNS notifications.
 
 * Hosted Zone and Resource Records:
 
-Define a Hosted Zone for your domain.
-Specify Resource Records (such as A or CNAME records) within the Hosted Zone to route traffic to your ALB.
+Define a Hosted Zone and specify Resource Records (CNAME records) within the Hosted Zone to route traffic to the ALB.
 
 ## Jenkins
 * A multi-branch pipeline is used to automatically run Terraform apply and Ansible deploy.
