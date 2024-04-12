@@ -1,13 +1,33 @@
 ## Project Description
 
-Deploy Grafana and Prometheus to AWS EC2 instances automatically with Terraform, Ansible and Jenkins.
+using AWS-native tools such as CloudFormation for infrastructure provisioning and AWS CodePipeline, AWS CodeBuild, and AWS CodeDeploy for automating the deployment process. 
 
-## Dockerfile
+## CloudFormation
 
-* The Dockerfile is used to build a customized Jenkins docker image that will be installed with the required
-environments inluding AWS CLI, Terraform, Ansible and JQ.
-* The basic image and running guide could be found at
-https://www.jenkins.io/doc/book/installing/docker/#on-macos-and-linux
+* Launch Configuration and Auto Scaling Group:
+
+Define a Launch Configuration specifying the EC2 instance details.
+Define an Auto Scaling Group referencing the Launch Configuration, specifying minimum, maximum, and desired capacity along with scaling policies.
+
+* Application Load Balancer (ALB):
+
+Define an Application Load Balancer resource specifying listeners, target groups, and routing rules.
+Register the EC2 instances with the ALB's target group.
+
+* CloudWatch Log Group and SNS:
+
+Define a CloudWatch Log Group for your EC2 instances' logs.
+Set up an SNS topic for receiving notifications/alerts.
+
+* CloudWatch Alarm:
+
+Create CloudWatch Alarms to monitor specific metrics (CPU utilization, network traffic, etc.) of your EC2 instances or ALB.
+Set up actions for these alarms, such as triggering SNS notifications or Auto Scaling policies.
+
+* Hosted Zone and Resource Records:
+
+Define a Hosted Zone for your domain.
+Specify Resource Records (such as A or CNAME records) within the Hosted Zone to route traffic to your ALB.
 
 ## Jenkins
 * A multi-branch pipeline is used to automatically run Terraform apply and Ansible deploy.
