@@ -1,0 +1,76 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+Description:
+  This template creates other services
+
+
+
+Resources:
+
+# 3. CloudWatch Log Group
+  HostedZoneCloudWatchLogs:
+      Type: AWS::Logs::LogGroup
+      Properties: 
+        LogGroupName: /aws/route53/webapp
+        RetentionInDays: 1
+
+# 4. SNS
+  SNSTopic:
+      Type: AWS::SNS::Topic
+      Properties: 
+        TopicName: Alerts
+  SNSSubscription:
+    Type: AWS::SNS::Subscription
+    Properties: 
+      Endpoint: xianglitheonly@gmail.com
+      Protocol: email
+      TopicArn: !Ref SNSTopic
+
+
+# 5. Hosted Zone
+  HostedZone:
+    Type: AWS::Route53::HostedZone
+    Properties: 
+      Name: xiangli.com
+      QueryLoggingConfig: 
+          CloudWatchLogsLogGroupArn: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/route53/webapp'
+
+
+# 6. Resource Records
+  ResourceRecord:
+    Type: AWS::Route53::RecordSet
+    DependsOn: HostedZone 
+    Properties: 
+      HostedZoneName: rahultrisal.com.
+      Name: blog.rahultrisal.com.
+      ResourceRecords: 
+        - !GetAtt AppLoadbalancer.DNSName
+      TTL: '900'
+      Type: CNAME
+  
+  LogPolicy:
+    Type: AWS::Logs::ResourcePolicy
+    Properties:
+      PolicyName: LogResourcePolicy
+      PolicyDocument: !Sub "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Sid\":\"Route53LogsToCloudWatchLogs\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":[\"route53.amazonaws.com\"]},\"Action\":[\"logs:CreateLogStream\",\"logs:PutLogEvents\"],\"Resource\":\"arn:aws:logs:us-east-1:${AWS::AccountId}:log-group:/aws/route53/*\"}]}"
+
+  # 7. CloudWatch Alarm
+  WebCloudwatchAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties: 
+      AlarmActions: 
+        - !Sub 'arn:aws:sns:${AWS::Region}:${AWS::AccountId}:SNSTopic'
+      AlarmDescription: This alarm is triggered when EC2 reaches CPU threshold
+      AlarmName: RahulCWAlarm
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      DatapointsToAlarm: 1
+      MetricName: CPUUtilization
+      Dimensions: 
+        - Name: ASG            
+      Value: !Ref WebserverAutoScale
+      EvaluationPeriods: 1
+      Namespace: AWS/EC2
+      Period: 300
+      Statistic: Maximum        
+      Threshold: 2
+      TreatMissingData: breaching
